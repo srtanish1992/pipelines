@@ -17,7 +17,8 @@
 import Tooltip from '@material-ui/core/Tooltip';
 import CustomTable, { Column, CustomRendererProps, Row } from 'src/components/CustomTable';
 import * as React from 'react';
-import { Link, RouteComponentProps } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { RouteComponentProps } from './Page';
 import {
   V2beta1PipelineVersion,
   V2beta1ListPipelineVersionsResponse,

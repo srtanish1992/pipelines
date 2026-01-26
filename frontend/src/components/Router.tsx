@@ -21,7 +21,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Snackbar, { SnackbarProps } from '@material-ui/core/Snackbar';
 import * as React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import Compare from 'src/pages/Compare';
 import FrontendFeatures from 'src/pages/FrontendFeatures';
 import RunDetailsRouter from 'src/pages/RunDetailsRouter';
@@ -223,12 +223,8 @@ const Router: React.FC<RouterProps> = ({ configs }) => {
   return (
     // There will be only one instance of SideNav, throughout UI usage.
     <SideNavLayout>
-      <Switch>
-        <Route
-          exact={true}
-          path={'/'}
-          render={({ ...props }) => <Redirect to={DEFAULT_ROUTE} {...props} />}
-        />
+      <Routes>
+        <Route path={'/'} element={<Navigate to={DEFAULT_ROUTE} replace />} />
 
         {/* Normal routes */}
         {routes.map((route, i) => {
@@ -239,20 +235,15 @@ const Router: React.FC<RouterProps> = ({ configs }) => {
             // network response handlers.
             <Route
               key={i}
-              exact={!route.notExact}
-              path={path}
-              render={props => <RoutedPage key={props.location.key} route={route} />}
+              path={route.notExact ? `${path}/*` : path}
+              element={<RoutedPage route={route} />}
             />
           );
         })}
 
         {/* 404 */}
-        {
-          <Route>
-            <RoutedPage />
-          </Route>
-        }
-      </Switch>
+        <Route path="*" element={<RoutedPage />} />
+      </Routes>
     </SideNavLayout>
   );
 };
@@ -287,7 +278,7 @@ class RoutedPage extends React.Component<{ route?: RouteConfig }, RouteComponent
 
     return (
       <div className={classes(commonCss.page)}>
-        <Route render={({ ...props }) => <Toolbar {...this.state.toolbarProps} {...props} />} />
+        <ToolbarWithLocation toolbarProps={this.state.toolbarProps} />
         {this.state.bannerProps.message && (
           <Banner
             message={this.state.bannerProps.message}
@@ -297,26 +288,14 @@ class RoutedPage extends React.Component<{ route?: RouteConfig }, RouteComponent
             showTroubleshootingGuideLink={true}
           />
         )}
-        <Switch>
-          {route &&
-            (() => {
-              const { path, Component, ...otherProps } = { ...route };
-              return (
-                <Route
-                  exact={!route.notExact}
-                  path={path}
-                  render={({ ...props }) => (
-                    <Component {...props} {...this.childProps} {...otherProps} />
-                  )}
-                />
-              );
-            })()}
-
-          {/* 404 */}
-          {!!route && (
-            <Route render={({ ...props }) => <Page404 {...props} {...this.childProps} />} />
-          )}
-        </Switch>
+        {route ? (
+          (() => {
+            const { path, Component, ...otherProps } = { ...route };
+            return <Component {...this.childProps} {...otherProps} />;
+          })()
+        ) : (
+          <Page404 {...this.childProps} />
+        )}
 
         <Snackbar
           autoHideDuration={this.state.snackbarProps.autoHideDuration}
@@ -399,11 +378,20 @@ class RoutedPage extends React.Component<{ route?: RouteConfig }, RouteComponent
 
 export default Router;
 
-const SideNavLayout: React.FC<{}> = ({ children }) => (
-  <div className={classes(commonCss.page)}>
-    <div className={classes(commonCss.flexGrow)}>
-      <Route render={({ ...props }) => <SideNav page={props.location.pathname} {...props} />} />
-      {children}
+// Helper component to provide location to Toolbar
+const ToolbarWithLocation: React.FC<{ toolbarProps: ToolbarProps }> = ({ toolbarProps }) => {
+  const location = useLocation();
+  return <Toolbar {...toolbarProps} location={location} />;
+};
+
+const SideNavLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  return (
+    <div className={classes(commonCss.page)}>
+      <div className={classes(commonCss.flexGrow)}>
+        <SideNav page={location.pathname} />
+        {children}
+      </div>
     </div>
-  </div>
-);
+  );
+};

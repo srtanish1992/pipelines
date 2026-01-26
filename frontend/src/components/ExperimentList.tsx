@@ -16,7 +16,8 @@
 
 import CustomTable, { Column, CustomRendererProps, Row, ExpandState } from './CustomTable';
 import * as React from 'react';
-import { Link, RouteComponentProps } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { RouteComponentProps } from 'src/pages/Page';
 import {
   V2beta1ListExperimentsResponse,
   V2beta1Experiment,

@@ -22,7 +22,7 @@ import { V2beta1RecurringRun, V2beta1RecurringRunStatus } from 'src/apisv2beta1/
 import { Apis, JobSortKeys, ListRequest } from 'src/lib/Apis';
 import { DialogProps, RoutePage, RouteParams } from 'src/components/Router';
 import { Link } from 'react-router-dom';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps } from './Page';
 import { SnackbarProps } from '@material-ui/core/Snackbar';
 import { commonCss } from 'src/Css';
 import { logger, formatDateString, errorToMessage } from 'src/lib/Utils';
